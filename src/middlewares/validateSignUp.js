@@ -4,7 +4,6 @@ export default async function validateSignUp(req, res, next) {
     const user = req.body;
     const nameRegex = /^[a-zA-Z ]{2,25}$/;
 
-    console.log("oi")
     const userSchema = joi.object({
         name: joi.string().pattern(nameRegex).required(),
         email: joi.string().email().required(),

@@ -64,7 +64,6 @@ export async function urlRedirector(req, res) {
     `, 
     [shortUrl]);
 
-    console.log(response)
     if(response.length ===  0)
     {
       return res.sendStatus(404);
@@ -88,7 +87,6 @@ export async function urlRedirector(req, res) {
 export async function deleteUrl(req, res) {
   const {urlId} = req.params;
   const userId = res.locals.user;
-  console.log(userId)
   try
   {
     const {rows: doesUrlExist} = await connection.query(
@@ -99,7 +97,6 @@ export async function deleteUrl(req, res) {
       `,
       [urlId]);
 
-    console.log(userId)
     if (doesUrlExist.length === 0)
     {
       return res.sendStatus(404);

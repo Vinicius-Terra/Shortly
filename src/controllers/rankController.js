@@ -13,7 +13,7 @@ export async function getRank(req, res) {
     FROM users
     LEFT JOIN urls ON urls."userId" = users.id
     GROUP BY users.id
-    ORDER BY "visitCount" 
+    ORDER BY "visitCount" DESC
     LIMIT 10
     `);
     return res.send(rank).status(200);

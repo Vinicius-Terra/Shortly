@@ -114,7 +114,7 @@ export async function getUserData(req, res) {
       SELECT 
         users.id AS id, 
         users.name AS name, 
-        SUM(urls."visitCount") AS "studentCount"
+        SUM(urls."visitCount") AS "visitCount"
       FROM urls
         JOIN users ON users.id= urls."userId"
       WHERE users.id= $1
@@ -135,7 +135,21 @@ export async function getUserData(req, res) {
       `,
       [userId]);
 
-    let response = {...userInfo[0], shortenedUrls: [...totalVisits]}
+    if (userInfo.length === 0){
+      const {rows: userInfoFromUsersTable} = await connection.query(
+        `
+        SELECT 
+          users.id AS id, 
+          users.name AS name 
+        FROM users
+        WHERE users.id= $1
+        `,
+        [userId]);
+        let response = {...userInfoFromUsersTable[0], visitCount:0, shortenedUrls: [...totalVisits]};
+        return res.send(response).status(200);;
+    }
+
+    let response = {...userInfo[0], shortenedUrls: [...totalVisits]};
 
     return res.send(response).status(200);
   }
