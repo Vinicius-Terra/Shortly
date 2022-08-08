@@ -9,7 +9,7 @@ export async function getRank(req, res) {
     users.id AS id,
     users.name AS name,
     COUNT(urls.url) AS "linksCount",
-    SUM(urls."visitCount") AS "visitCount"
+    COALESCE(SUM(urls."visitCount"),0) AS "visitCount"
     FROM users
     LEFT JOIN urls ON urls."userId" = users.id
     GROUP BY users.id
