@@ -3,6 +3,7 @@ import connection from '../dbStrategy/postgres.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { response } from 'express';
 
 dotenv.config();
 const SECRET = process.env.ACCESS_TOKEN_SECRET;
@@ -104,9 +105,39 @@ export async function signIn(req, res) {
 
 export async function getUserData(req, res) {
 
+  const userId = res.locals.user;
   try
   {
-    return res.send("").status(200);
+  
+    const {rows: userInfo} = await connection.query(
+      `
+      SELECT 
+        users.id AS id, 
+        users.name AS name, 
+        SUM(urls."visitCount") AS "studentCount"
+      FROM urls
+        JOIN users ON users.id= urls."userId"
+      WHERE users.id= $1
+      GROUP BY urls."userId", users.id
+      `,
+      [userId]);
+
+    const {rows: totalVisits} = await connection.query(
+      `
+      SELECT 
+        id AS id,
+        "shortedUrl" AS "shortUrl",
+        url AS url,
+        "visitCount" AS "visitCount"
+      FROM urls
+      WHERE "userId" = $1
+      ORDER BY urls.id ASC
+      `,
+      [userId]);
+
+    let response = {...userInfo[0], shortenedUrls: [...totalVisits]}
+
+    return res.send(response).status(200);
   }
   catch(err)
   {

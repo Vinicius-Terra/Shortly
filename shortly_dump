@@ -21,16 +21,52 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: tokens; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.tokens (
+    id integer NOT NULL,
+    "userId" integer NOT NULL,
+    token text NOT NULL,
+    "LastLoginAt" timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.tokens OWNER TO postgres;
+
+--
+-- Name: tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.tokens_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.tokens_id_seq OWNER TO postgres;
+
+--
+-- Name: tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.tokens_id_seq OWNED BY public.tokens.id;
+
+
+--
 -- Name: urls; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.urls (
     id integer NOT NULL,
-    "userId" integer,
+    "userId" integer NOT NULL,
     "shortedUrl" text NOT NULL,
     url text NOT NULL,
     "visitCount" integer DEFAULT 0 NOT NULL,
-    "createdAt" timestamp without time zone DEFAULT now()
+    "createdAt" timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -67,7 +103,7 @@ CREATE TABLE public.users (
     name text NOT NULL,
     email text NOT NULL,
     password text NOT NULL,
-    "createdAt" timestamp without time zone DEFAULT now()
+    "createdAt" timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -96,6 +132,13 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
+-- Name: tokens id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tokens ALTER COLUMN id SET DEFAULT nextval('public.tokens_id_seq'::regclass);
+
+
+--
 -- Name: urls id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -110,10 +153,21 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
+-- Data for Name: tokens; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.tokens (id, "userId", token, "LastLoginAt") FROM stdin;
+1	1	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjU5OTM0MDYyLCJleHAiOjE2NTk5NDQ4NjJ9.L0aRazCj4_ER5tfsHQBW-oZhHVVZ7UHkm271RV-4GwQ	2022-08-07 15:44:30.607458
+\.
+
+
+--
 -- Data for Name: urls; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.urls (id, "userId", "shortedUrl", url, "visitCount", "createdAt") FROM stdin;
+6	1	1v83e4heaf	https://bootcampra.notion.site/Projeto-Shortly-API-4ffa110c0ebd4e83ad7302cfafd33133	0	2022-08-08 00:10:48.306396
+3	1	hcb97xeonw	https://www.youtube.com/watch?v=ddwW19Gci64	1	2022-08-07 23:45:38.48525
 \.
 
 
@@ -122,21 +176,45 @@ COPY public.urls (id, "userId", "shortedUrl", url, "visitCount", "createdAt") FR
 --
 
 COPY public.users (id, name, email, password, "createdAt") FROM stdin;
+1	leir jorge	jorge@gmail.com	$2b$10$BsV8K7HtWaGYcVftpePYGOtZTZdBddcjcP190eHM04PASW0b1N6pu	2022-08-07 15:38:32.125969
 \.
+
+
+--
+-- Name: tokens_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.tokens_id_seq', 1, true);
 
 
 --
 -- Name: urls_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.urls_id_seq', 1, false);
+SELECT pg_catalog.setval('public.urls_id_seq', 6, true);
 
 
 --
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 1, false);
+SELECT pg_catalog.setval('public.users_id_seq', 1, true);
+
+
+--
+-- Name: tokens tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tokens
+    ADD CONSTRAINT tokens_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: tokens tokens_userId_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tokens
+    ADD CONSTRAINT "tokens_userId_key" UNIQUE ("userId");
 
 
 --
@@ -161,6 +239,14 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: tokens tokens_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tokens
+    ADD CONSTRAINT "tokens_userId_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
